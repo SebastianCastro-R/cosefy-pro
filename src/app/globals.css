@@ -13,6 +13,17 @@
   --black: #0A0A0A;
   --gray-text: #666666;
   --gray-light: #999999;
+  
+  /* Semantic colors for theming */
+  --color-primary: var(--gold);
+  --color-primary-hover: var(--gold-dark);
+  --color-surface: var(--cream);
+  --color-surface-elevated: #FFFFFF;
+  --color-text: var(--black);
+  --color-text-secondary: var(--gray-text);
+  --color-border: #E5E7EB;
+  --color-error: #DC2626;
+  --color-success: #16A34A;
 }
 
 * {
@@ -21,19 +32,83 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--cream);
   color: var(--black);
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 600;
+  line-height: 1.2;
 }
 
-/* Animations */
+/* ============================================
+   ACCESSIBILITY - Focus States (CRITICAL)
+   ============================================ */
+
+/* Visible focus for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Focus styles for specific elements */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--gold);
+  color: var(--black);
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Base animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -61,19 +136,39 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 .animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 .animate-slideUp {
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.4s ease-out forwards;
 }
 
 .animate-slideIn {
-  animation: slideIn 0.4s ease-out;
+  animation: slideIn 0.4s ease-out forwards;
 }
 
-/* Custom scrollbar */
+/* Stagger animation delays for lists */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -92,16 +187,36 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--gold-dark);
 }
 
-/* Form focus states */
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold) var(--cream);
 }
 
-/* Table styles */
+/* ============================================
+   FORM STYLES
+   ============================================ */
+
+/* Ensure inputs have proper height */
+input,
+textarea,
+select {
+  font-size: 16px; /* Prevents iOS zoom on focus */
+}
+
+/* Placeholder styles */
+::placeholder {
+  color: var(--gray-light);
+  opacity: 1;
+}
+
+/* ============================================
+   TABLE STYLES
+   ============================================ */
+
 .table-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -115,6 +230,7 @@ th {
   color: var(--gray-text);
   padding: 12px;
   border-bottom: 2px solid var(--cream-dark);
+  white-space: nowrap;
 }
 
 td {
@@ -126,7 +242,10 @@ tr:hover {
   background-color: var(--cream);
 }
 
-/* Loading spinner */
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+
 .spinner {
   border: 3px solid var(--cream);
   border-top: 3px solid var(--gold);
@@ -136,7 +255,46 @@ tr:hover {
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus visible utility */
+.focus-visible-only:not(:focus-visible) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  body {
+    background: white;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
 }

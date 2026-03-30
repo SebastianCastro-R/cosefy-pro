@@ -27,6 +27,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
       {/* Mobile toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-soft"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -58,7 +60,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4">
+        <nav className="p-4" role="navigation" aria-label="Navegación principal">
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -68,6 +70,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   <Link
                     href={item.href}
                     onClick={() => setIsOpen(false)}
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200',
                       'hover:bg-cream-dark',
@@ -89,6 +92,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-cream-dark">
           <button
             onClick={onLogout}
+            aria-label="Cerrar sesión"
             className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
           >
             <LogOut className="w-5 h-5" />
