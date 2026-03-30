@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
 import Sidebar from '@/components/shared/Sidebar';
 import Header from '@/components/shared/Header';
+import BottomNav from '@/components/shared/BottomNav';
 
 export default function DashboardLayout({
   children,
@@ -80,9 +81,10 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-cream">
       <Sidebar onLogout={handleLogout} />
-      <div className="lg:ml-64">
+      <div className="lg:ml-64 min-h-screen pb-20 lg:pb-0">
         <Header title={getPageTitle()} />
-        <main className="p-6">{children}</main>
+        <main className="p-4 md:p-6 pb-24 lg:pb-6">{children}</main>
+        <BottomNav />
       </div>
     </div>
   );

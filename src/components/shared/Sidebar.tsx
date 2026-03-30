@@ -29,7 +29,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-soft"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-soft safe-area-left"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
@@ -45,9 +45,9 @@ export default function Sidebar({ onLogout }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40',
+          'fixed top-0 left-0 h-full w-56 lg:w-64 bg-white shadow-lg z-40',
           'transform transition-transform duration-300 ease-in-out',
-          'lg:translate-x-0',
+          'lg:translate-x-0 pt-16 lg:pt-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -89,7 +89,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-cream-dark">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-cream-dark pb-20 lg:pb-4">
           <button
             onClick={onLogout}
             aria-label="Cerrar sesión"
