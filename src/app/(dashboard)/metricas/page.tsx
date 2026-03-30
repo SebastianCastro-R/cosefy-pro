@@ -18,7 +18,7 @@ import {
   Line,
   Legend,
 } from 'recharts';
-import { DollarSign, TrendingUp, Users, Package } from 'lucide-react';
+import { DollarSign, TrendingUp, Users, Package, Clock } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 const COLORS = ['#D4AF37', '#B8941F', '#E5C76B', '#8B7355', '#666666', '#999999'];
@@ -31,6 +31,7 @@ export default function MetricasPage() {
     promedioPedido: 0,
     totalPedidos: 0,
     clientesNuevos: 0,
+    tiempoPromedioEntrega: 0,
   });
   const [chartData, setChartData] = useState<any[]>([]);
   const [topPrendas, setTopPrendas] = useState<any[]>([]);
@@ -89,7 +90,28 @@ export default function MetricasPage() {
         promedioPedido: promedio,
         totalPedidos: pedidos?.length || 0,
         clientesNuevos: clientesData.data?.length || 0,
+        tiempoPromedioEntrega: 0,
       });
+
+      // Calculate average delivery time
+      const { data: pedidosEntregados } = await supabase
+        .from('pedidos')
+        .select('fecha_recepcion, fecha_entrega_real')
+        .eq('estado', 'ENTREGADO')
+        .not('fecha_entrega_real', 'is', null);
+
+      let tiempoPromedio = 0;
+      if (pedidosEntregados && pedidosEntregados.length > 0) {
+        const totalDias = pedidosEntregados.reduce((acc, p) => {
+          const recepcion = new Date(p.fecha_recepcion);
+          const entrega = new Date(p.fecha_entrega_real);
+          const dias = Math.floor((entrega.getTime() - recepcion.getTime()) / (1000 * 60 * 60 * 24));
+          return acc + dias;
+        }, 0);
+        tiempoPromedio = totalDias / pedidosEntregados.length;
+      }
+
+      setMetricas(prev => ({ ...prev, tiempoPromedioEntrega: Math.round(tiempoPromedio * 10) / 10 }));
 
       // Prepare chart data (earnings by day)
       const byDay: Record<string, number> = {};
@@ -190,6 +212,12 @@ export default function MetricasPage() {
       value: metricas.clientesNuevos,
       icon: Users,
       color: 'text-purple-500',
+    },
+    {
+      title: 'Tiempo Promedio Entrega',
+      value: `${metricas.tiempoPromedioEntrega} días`,
+      icon: Clock,
+      color: 'text-orange-500',
     },
   ];
 

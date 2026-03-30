@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { Card, Button } from '@/components/ui';
 import { Users, Package, Clock, DollarSign, Plus, Calendar } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import Link from 'next/link';
 import { formatCurrency, getStatusColor, getStatusLabel } from '@/lib/utils';
 import type { Pedido, Cliente, DashboardStats } from '@/types';
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   });
   const [pedidosHoy, setPedidosHoy] = useState<Pedido[]>([]);
   const [pedidosManana, setPedidosManana] = useState<Pedido[]>([]);
+  const [ordersByStatus, setOrdersByStatus] = useState<{ name: string; value: number; color: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -78,6 +80,43 @@ export default function DashboardPage() {
 
       setPedidosHoy(pedidosHoyRes.data || []);
       setPedidosManana(pedidosMananaRes.data || []);
+
+      // Fetch orders by status
+      const { data: ordersByEstado } = await supabase
+        .from('pedidos')
+        .select('estado');
+
+      const statusCount: Record<string, number> = {
+        RECIBIDO: 0,
+        EN_PROCESO: 0,
+        COMPLETADO: 0,
+        ENTREGADO: 0,
+        CANCELADO: 0,
+      };
+
+      ordersByEstado?.forEach((p) => {
+        if (statusCount[p.estado] !== undefined) {
+          statusCount[p.estado]++;
+        }
+      });
+
+      const statusColors: Record<string, string> = {
+        RECIBIDO: '#3B82F6',
+        EN_PROCESO: '#EAB308',
+        COMPLETADO: '#22C55E',
+        ENTREGADO: '#6B7280',
+        CANCELADO: '#EF4444',
+      };
+
+      setOrdersByStatus(
+        Object.entries(statusCount)
+          .filter(([_, value]) => value > 0)
+          .map(([name, value]) => ({
+            name: name === 'EN_PROCESO' ? 'En Proceso' : name === 'RECIBIDO' ? 'Recibido' : name === 'COMPLETADO' ? 'Completado' : name === 'ENTREGADO' ? 'Entregado' : 'Cancelado',
+            value,
+            color: statusColors[name],
+          }))
+      );
     } catch (error) {
       console.error('Error fetching dashboard:', error);
     } finally {
@@ -245,6 +284,36 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Orders by Status Chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <h2 className="text-xl font-title font-semibold mb-4">Pedidos por Estado</h2>
+          {ordersByStatus.length === 0 ? (
+            <p className="text-gray-text text-center py-8">No hay pedidos</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={ordersByStatus}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {ordersByStatus.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           )}
         </Card>
       </div>
